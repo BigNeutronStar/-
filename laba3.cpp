@@ -292,6 +292,20 @@ public:
 
 class Calculator {
 public:
+
+    Calculator() {
+        std::cout << "Calculator initialized with default constructor." << std::endl;
+    }
+
+    // Конструктор инициализации
+    Calculator(int value) {
+        std::cout << "Calculator initialized with value: " << value << std::endl;
+    }
+
+    // Конструктор копирования
+    Calculator(const Calculator& other) {
+        std::cout << "Calculator copied." << std::endl;
+    }
     // Метод для выполнения операции над двумя комплексными числами
     void performOperation(std::stack<ComplexNumber>& stack, char operation) {
         ComplexNumber num2 = stack.top();

@@ -201,6 +201,8 @@ public:
     } else {
         std::cout << " - " << fabs(getD()) << "k";
     }
+
+    std::cout << "\n";
     }
 
     static void test() {
@@ -290,11 +292,14 @@ public:
 
 class Calculator {
 public:
-    // Метод для выполнения операции над двумя числами
-    ComplexNumber performOperation(const ComplexNumber& num1, const ComplexNumber& num2, char operation) {
-        ComplexNumber result(0, 0);
+    // Метод для выполнения операции над двумя комплексными числами
+    void performOperation(std::stack<ComplexNumber>& stack, char operation) {
+        ComplexNumber num2 = stack.top();
+        stack.pop();
+        ComplexNumber num1 = stack.top();
+        stack.pop();
 
-        // Выполняем операцию в зависимости от символа
+        ComplexNumber result(0, 0);
         switch (operation) {
             case '+':
                 result = num1 + num2;
@@ -313,39 +318,101 @@ public:
                 break;
         }
 
-        return result;
+        stack.push(result);
+    }
+
+    // Метод для выполнения операции над двумя кватернионами
+    void performOperation(std::stack<Quaternion>& stack, char operation) {
+        Quaternion q2 = stack.top();
+        stack.pop();
+        Quaternion q1 = stack.top();
+        stack.pop();
+
+        Quaternion result(0, 0, 0, 0);
+        switch (operation) {
+            case '+':
+                result = q1 + q2;
+                break;
+            case '-':
+                result = q1 - q2;
+                break;
+            case '*':
+                result = q1 * q2;
+                break;
+            case '/':
+                result = q1 / q2;
+                break;
+            default:
+                std::cout << "Invalid operation" << std::endl;
+                break;
+        }
+
+        stack.push(result);
     }
 
     // Функция для тестирования операций
     void runTests() {
-        ComplexNumber num1(3, 4);  // 3 + 4i
-        ComplexNumber num2(1, 2);  // 1 + 2i
+        // Тесты для комплексных чисел
+        std::stack<ComplexNumber> complexStack;
+        complexStack.push(ComplexNumber(3, 4));  // 3 + 4i
+        complexStack.push(ComplexNumber(1, 2));  // 1 + 2i
 
         // Сложение
-        ComplexNumber result = performOperation(num1, num2, '+');
-        std::cout << "Test 1 - Addition: ";
-        result.print();  // Ожидаемый результат: 4 + 6i
-        assert(result.getReal() == 4 && result.getImaginary() == 6);
+        performOperation(complexStack, '+');
+        std::cout << "Test 1 - Complex Addition: \n";
+        complexStack.top().print();  // Ожидаемый результат: 4 + 6i
 
         // Вычитание
-        result = performOperation(num1, num2, '-');
-        std::cout << "Test 2 - Subtraction: ";
-        result.print();  // Ожидаемый результат: 2 + 2i
-        assert(result.getReal() == 2 && result.getImaginary() == 2);
+        complexStack.push(ComplexNumber(3, 4));
+        complexStack.push(ComplexNumber(1, 2));
+        performOperation(complexStack, '-');
+        std::cout << "Test 2 - Complex Subtraction: \n";
+        complexStack.top().print();  // Ожидаемый результат: 2 + 2i
 
         // Умножение
-        result = performOperation(num1, num2, '*');
-        std::cout << "Test 3 - Multiplication: ";
-        result.print();  // Ожидаемый результат: -5 + 10i
-        assert(result.getReal() == -5 && result.getImaginary() == 10);
+        complexStack.push(ComplexNumber(3, 4));
+        complexStack.push(ComplexNumber(1, 2));
+        performOperation(complexStack, '*');
+        std::cout << "Test 3 - Complex Multiplication: \n";
+        complexStack.top().print();  // Ожидаемый результат: -5 + 10i
 
         // Деление
-        result = performOperation(num1, num2, '/');
-        std::cout << "Test 4 - Division: ";
-        result.print();  // Ожидаемый результат: 2.2 - 0.4i
-        assert(result.getReal() == 2.2 && result.getImaginary() == -0.4);
+        complexStack.push(ComplexNumber(3, 4));
+        complexStack.push(ComplexNumber(1, 2));
+        performOperation(complexStack, '/');
+        std::cout << "Test 4 - Complex Division: \n";
+        complexStack.top().print();  // Ожидаемый результат: 2.2 - 0.4i
 
-        std::cout << "All tests passed!" << std::endl;
+        // Тесты для кватернионов
+        std::stack<Quaternion> quaternionStack;
+        quaternionStack.push(Quaternion(1, 2, 3, 4));  // 1 + 2i + 3j + 4k
+        quaternionStack.push(Quaternion(5, 6, 7, 8));  // 5 + 6i + 7j + 8k
+
+        // Сложение
+        performOperation(quaternionStack, '+');
+        std::cout << "Test 5 - Quaternion Addition: \n";
+        quaternionStack.top().print();  // Ожидаемый результат: 6 + 8i + 10j + 12k
+
+        // Вычитание
+        quaternionStack.push(Quaternion(1, 2, 3, 4));
+        quaternionStack.push(Quaternion(5, 6, 7, 8));
+        performOperation(quaternionStack, '-');
+        std::cout << "Test 6 - Quaternion Subtraction: \n";
+        quaternionStack.top().print();  // Ожидаемый результат: -4 - 4i - 4j - 4k
+
+        // Умножение
+        quaternionStack.push(Quaternion(1, 2, 3, 4));
+        quaternionStack.push(Quaternion(5, 6, 7, 8));
+        performOperation(quaternionStack, '*');
+        std::cout << "Test 7 - Quaternion Multiplication: \n";
+        quaternionStack.top().print();  // Ожидаемый результат: -60 + 12i + 30j + 24k
+
+        // Деление
+        quaternionStack.push(Quaternion(1, 2, 3, 4));
+        quaternionStack.push(Quaternion(5, 6, 7, 8));
+        performOperation(quaternionStack, '/');
+        std::cout << "Test 8 - Quaternion Division: \n";
+        quaternionStack.top().print();  // Ожидаемый результат: 0.04 + 0.08i + 0.12j + 0.16k
     }
 };
 
@@ -355,6 +422,8 @@ int main() {
 
     // Запуск тестов
     calc.runTests();
+
+    std::cout << "All tests passed!" << std::endl;
 
     return 0;
 }

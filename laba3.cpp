@@ -56,7 +56,7 @@ public:
     }
 
 
-    void print() const {
+    virtual void print() const {
         if (imaginary >= 0)
             std::cout << real << " + " << imaginary << "i" << std::endl;
         else
@@ -185,7 +185,7 @@ public:
         return (getA() * getA() + getB() * getB() + getC() * getC() + getD() * getD());
     }
     //для вывода
-    void print() const {
+    virtual void print() const override {
     // Выводим a + bi
     std::cout << getA() << " + " << getB() << "i";
 

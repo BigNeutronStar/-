@@ -3,7 +3,7 @@
 #include <cmath>
 #include <string>
 
-enum NumberType { COMPLEX, QUATERNION };
+enum NumberType { COMPLEX, QUATERNION, CALCULATOR };
 
 class ComplexNumber {
 private:
@@ -291,22 +291,25 @@ public:
 };
 
 class Calculator {
+private:
+    NumberType type;
 public:
 
-    Calculator() {
+    Calculator() : type(CALCULATOR) {
         std::cout << "Calculator initialized with default constructor." << std::endl;
     }
 
     // Конструктор инициализации
-    Calculator(int value) {
+    Calculator(int value) : type(CALCULATOR) {
         std::cout << "Calculator initialized with value: " << value << std::endl;
     }
 
     // Конструктор копирования
-    Calculator(const Calculator& other) {
+    Calculator(const Calculator& other) : type(CALCULATOR) {
         std::cout << "Calculator copied." << std::endl;
     }
-    // Метод для выполнения операции над двумя комплексными числами
+    
+    // Метод для выполнения операции над комплексными числами
     void performOperation(std::stack<ComplexNumber>& stack, char operation) {
         ComplexNumber num2 = stack.top();
         stack.pop();
@@ -335,7 +338,7 @@ public:
         stack.push(result);
     }
 
-    // Метод для выполнения операции над двумя кватернионами
+    // Метод для выполнения операции над кватернионами
     void performOperation(std::stack<Quaternion>& stack, char operation) {
         Quaternion q2 = stack.top();
         stack.pop();
@@ -364,77 +367,87 @@ public:
         stack.push(result);
     }
 
-    // Функция для тестирования операций
-    void runTests() {
-        // Тесты для комплексных чисел
-        std::stack<ComplexNumber> complexStack;
-        complexStack.push(ComplexNumber(3, 4));  // 3 + 4i
-        complexStack.push(ComplexNumber(1, 2));  // 1 + 2i
 
-        // Сложение
-        performOperation(complexStack, '+');
-        std::cout << "Test 1 - Complex Addition: \n";
-        complexStack.top().print();  // Ожидаемый результат: 4 + 6i
+void runTests() {
+    // Тесты для комплексных чисел
+    std::stack<ComplexNumber> complexStack;
+    complexStack.push(ComplexNumber(3, 4));  // 3 + 4i
+    complexStack.push(ComplexNumber(1, 2));  // 1 + 2i
 
-        // Вычитание
-        complexStack.push(ComplexNumber(3, 4));
-        complexStack.push(ComplexNumber(1, 2));
-        performOperation(complexStack, '-');
-        std::cout << "Test 2 - Complex Subtraction: \n";
-        complexStack.top().print();  // Ожидаемый результат: 2 + 2i
+    // Сложение
+    performOperation(complexStack, '+');
+    ComplexNumber result = complexStack.top();
+    assert(result.getReal() == 4 && result.getImaginary() == 6);
+    std::cout << "Test 1 - Complex Addition passed.\n";
 
-        // Умножение
-        complexStack.push(ComplexNumber(3, 4));
-        complexStack.push(ComplexNumber(1, 2));
-        performOperation(complexStack, '*');
-        std::cout << "Test 3 - Complex Multiplication: \n";
-        complexStack.top().print();  // Ожидаемый результат: -5 + 10i
+    // Вычитание
+    complexStack.push(ComplexNumber(3, 4));
+    complexStack.push(ComplexNumber(1, 2));
+    performOperation(complexStack, '-');
+    result = complexStack.top();
+    assert(result.getReal() == 2 && result.getImaginary() == 2);
+    std::cout << "Test 2 - Complex Subtraction passed.\n";
 
-        // Деление
-        complexStack.push(ComplexNumber(3, 4));
-        complexStack.push(ComplexNumber(1, 2));
-        performOperation(complexStack, '/');
-        std::cout << "Test 4 - Complex Division: \n";
-        complexStack.top().print();  // Ожидаемый результат: 2.2 - 0.4i
+    // Умножение
+    complexStack.push(ComplexNumber(3, 4));
+    complexStack.push(ComplexNumber(1, 2));
+    performOperation(complexStack, '*');
+    result = complexStack.top();
+    assert(result.getReal() == -5 && result.getImaginary() == 10);
+    std::cout << "Test 3 - Complex Multiplication passed.\n";
 
-        // Тесты для кватернионов
-        std::stack<Quaternion> quaternionStack;
-        quaternionStack.push(Quaternion(1, 2, 3, 4));  // 1 + 2i + 3j + 4k
-        quaternionStack.push(Quaternion(5, 6, 7, 8));  // 5 + 6i + 7j + 8k
+    // Деление
+    complexStack.push(ComplexNumber(3, 4));
+    complexStack.push(ComplexNumber(1, 2));
+    performOperation(complexStack, '/');
+    result = complexStack.top();
+    assert(std::abs(result.getReal() - 2.2) < 1e-6 && std::abs(result.getImaginary() + 0.4) < 1e-6);
+    std::cout << "Test 4 - Complex Division passed.\n";
 
-        // Сложение
-        performOperation(quaternionStack, '+');
-        std::cout << "Test 5 - Quaternion Addition: \n";
-        quaternionStack.top().print();  // Ожидаемый результат: 6 + 8i + 10j + 12k
+    // Тесты для кватернионов
+    std::stack<Quaternion> quaternionStack;
+    quaternionStack.push(Quaternion(1, 2, 3, 4));  // 1 + 2i + 3j + 4k
+    quaternionStack.push(Quaternion(5, 6, 7, 8));  // 5 + 6i + 7j + 8k
 
-        // Вычитание
-        quaternionStack.push(Quaternion(1, 2, 3, 4));
-        quaternionStack.push(Quaternion(5, 6, 7, 8));
-        performOperation(quaternionStack, '-');
-        std::cout << "Test 6 - Quaternion Subtraction: \n";
-        quaternionStack.top().print();  // Ожидаемый результат: -4 - 4i - 4j - 4k
+    // Сложение
+    performOperation(quaternionStack, '+');
+    Quaternion qResult = quaternionStack.top();
+    assert(qResult.getReal() == 6 && qResult.getB() == 8 && qResult.getC() == 10 && qResult.getD() == 12);
+    std::cout << "Test 5 - Quaternion Addition passed.\n";
 
-        // Умножение
-        quaternionStack.push(Quaternion(1, 2, 3, 4));
-        quaternionStack.push(Quaternion(5, 6, 7, 8));
-        performOperation(quaternionStack, '*');
-        std::cout << "Test 7 - Quaternion Multiplication: \n";
-        quaternionStack.top().print();  // Ожидаемый результат: -60 + 12i + 30j + 24k
+    // Вычитание
+    quaternionStack.push(Quaternion(1, 8, 3, 4));
+    quaternionStack.push(Quaternion(5, 6, 7, 8));
+    performOperation(quaternionStack, '-');
+    qResult = quaternionStack.top();
+    assert(qResult.getReal() == -4 && qResult.getB() == 2 && qResult.getC() == -4 && qResult.getD() == -4);
+    std::cout << "Test 6 - Quaternion Subtraction passed.\n";
 
-        // Деление
-        quaternionStack.push(Quaternion(1, 2, 3, 4));
-        quaternionStack.push(Quaternion(5, 6, 7, 8));
-        performOperation(quaternionStack, '/');
-        std::cout << "Test 8 - Quaternion Division: \n";
-        quaternionStack.top().print();  // Ожидаемый результат: 0.04 + 0.08i + 0.12j + 0.16k
-    }
+    // Умножение
+    quaternionStack.push(Quaternion(1, 2, 3, 4));
+    quaternionStack.push(Quaternion(5, 6, 7, 8));
+    performOperation(quaternionStack, '*');
+    qResult = quaternionStack.top();
+    assert(qResult.getReal() == -60 && qResult.getB() == 12 && qResult.getC() == 30 && qResult.getD() == 24);
+    std::cout << "Test 7 - Quaternion Multiplication passed.\n";
+
+    // Деление
+    quaternionStack.push(Quaternion(1, 2, 3, 4));
+    quaternionStack.push(Quaternion(5, 6, 7, 8));
+    performOperation(quaternionStack, '/');
+    qResult = quaternionStack.top();
+    assert(std::abs(qResult.getReal() - 0.402299) < 1e-6 &&
+           std::abs(qResult.getB() - 0.045977) < 1e-6 &&
+           std::abs(qResult.getC()) < 1e-6 &&
+           std::abs(qResult.getD() - 0.091954) < 1e-6);
+    std::cout << "Test 8 - Quaternion Division passed.\n";
+}
 };
 
-// Пример использования
+
 int main() {
     Calculator calc;
 
-    // Запуск тестов
     calc.runTests();
 
     std::cout << "All tests passed!" << std::endl;
